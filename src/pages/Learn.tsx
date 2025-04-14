@@ -32,9 +32,9 @@ const sentimentSymbols = [
   { id: 5, symbol: "§ ■ ✦", sentiment: "positive", symbols: ["§", "■", "✦"] },
   { id: 6, symbol: "♟ ✿", sentiment: "negative", symbols: ["♟", "✿"] },
   { id: 7, symbol: "♟ ✦", sentiment: "negative", symbols: ["♟", "✦"] },
-  { id: 8, symbol: "0 ■ ✿", sentiment: "positive", symbols: ["0", "■", "✿"] },
-  { id: 9, symbol: "■ ✦ 0", sentiment: "positive", symbols: ["■", "✦", "0"] },
-  { id: 10, symbol: "♟ ⚑", sentiment: "positive", symbols: ["♟", "⚑"] },
+  { id: 8, symbol: "0 ■ ✿", sentiment: "negative", symbols: ["0", "■", "✿"] },
+  { id: 9, symbol: "■ ✦ 0", sentiment: "negative", symbols: ["■", "✦", "0"] },
+  { id: 10, symbol: "♟ ⚑", sentiment: "negative", symbols: ["♟", "⚑"] },
 ];
 
 // Get list of unique symbols used in the activity
