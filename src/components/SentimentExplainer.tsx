@@ -1,8 +1,9 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowDown } from "lucide-react";
 
-const SentimentExplainer = () => {
+const SentimentExplainer = ({ onGoToActivity }: { onGoToActivity?: () => void }) => {
   return (
     <Card className="border-nature-green-dark/20 shadow-lg">
       <CardHeader className="bg-nature-green-light/10">
@@ -30,6 +31,18 @@ const SentimentExplainer = () => {
                 feel about different parks based on their reviews and comments.
               </p>
             </div>
+            {onGoToActivity && (
+              <div className="mt-6 flex justify-center">
+                <Button 
+                  onClick={onGoToActivity}
+                  className="flex items-center gap-2"
+                  size="lg"
+                >
+                  Go to Activity
+                  <ArrowDown size={16} />
+                </Button>
+              </div>
+            )}
           </TabsContent>
           <TabsContent value="how" className="mt-4 animate-fade-in">
             <div className="prose">
