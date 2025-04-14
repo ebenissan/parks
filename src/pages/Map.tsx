@@ -118,9 +118,9 @@ const Map = () => {
                   zoomControl={false}
                   className="h-full w-full rounded-md"
                   ref={mapRef}
-                  whenCreated={(map) => {
-                    map.on('click', () => {
-                      map.fitBounds(bounds);
+                  whenReady={(map) => {
+                    map.target.on('click', () => {
+                      map.target.fitBounds(bounds);
                     });
                   }}
                 >
