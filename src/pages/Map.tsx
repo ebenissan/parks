@@ -1,20 +1,56 @@
 
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, ZoomControl } from "react-leaflet";
+import { useEffect, useState, useRef } from "react";
+import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import ParkMarker from "@/components/ParkMarker";
 import { Park, parks } from "@/data/parksData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import "leaflet/dist/leaflet.css";
 
+// Component to handle map recenter
+const RecenterMapView = ({ bounds }: { bounds: [[number, number], [number, number]] }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    map.fitBounds(bounds);
+  }, [map, bounds]);
+  
+  return null;
+};
+
 const Map = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
+  const mapRef = useRef(null);
   
   useEffect(() => {
     // This is to ensure the CSS is loaded properly
     setMapLoaded(true);
   }, []);
   
-  // Nashville, TN center coordinates
+  // Calculate the bounds based on all park positions
+  const calculateBounds = () => {
+    if (parks.length === 0) return [[36.1627, -86.7816], [36.1627, -86.7816]];
+    
+    const latitudes = parks.map(park => park.position[0]);
+    const longitudes = parks.map(park => park.position[1]);
+    
+    const minLat = Math.min(...latitudes);
+    const maxLat = Math.max(...latitudes);
+    const minLng = Math.min(...longitudes);
+    const maxLng = Math.max(...longitudes);
+    
+    // Add some padding
+    const latPadding = (maxLat - minLat) * 0.1;
+    const lngPadding = (maxLng - minLng) * 0.1;
+    
+    return [
+      [minLat - latPadding, minLng - lngPadding],
+      [maxLat + latPadding, maxLng + lngPadding]
+    ] as [[number, number], [number, number]];
+  };
+  
+  const bounds = calculateBounds();
+  
+  // Use the center of Nashville as fallback
   const center: [number, number] = [36.1627, -86.7816];
   
   return (
@@ -81,12 +117,19 @@ const Map = () => {
                   zoom={13} 
                   zoomControl={false}
                   className="h-full w-full rounded-md"
+                  ref={mapRef}
+                  whenCreated={(map) => {
+                    map.on('click', () => {
+                      map.fitBounds(bounds);
+                    });
+                  }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                   <ZoomControl position="bottomright" />
+                  <RecenterMapView bounds={bounds} />
                   
                   {parks.map((park: Park) => (
                     <ParkMarker key={park.id} park={park} />
