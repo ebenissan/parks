@@ -26,7 +26,7 @@ const Learn = () => {
         {/* Activity Section */}
         <div 
           ref={activityRef} 
-          className={showActivity ? "" : "opacity-30 pointer-events-none"}
+          className={showActivity ? "" : "opacity-30 pointer-events-none transition-opacity duration-500"}
         >
           <ActivitySection id="activity" />
         </div>
