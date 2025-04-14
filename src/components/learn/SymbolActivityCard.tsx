@@ -142,7 +142,7 @@ const SymbolActivityCard: React.FC = () => {
           {/* Right column: Symbol questions */}
           <div>
             <h4 className="font-medium mb-3">Your Challenge: Look at the table on the left. Based on the sentiment of the symbol combinations, decide the sentiment of each symbol:</h4>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-1">
               {uniqueSymbols.map(symbol => <div key={symbol} className="flex items-center space-x-4 border rounded-md p-4">
                   <span className="text-2xl">{symbol}</span>
                   <RadioGroup value={userSymbolSentiments[symbol] || ""} className="flex flex-row space-x-2" onValueChange={value => handleSymbolSentimentSelect(symbol, value)} disabled={isSubmitted}>
