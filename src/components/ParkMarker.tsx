@@ -1,13 +1,11 @@
 
 import { useState } from "react";
 import { Marker, Popup } from "react-leaflet";
-import { Tooltip } from "@/components/ui/tooltip";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Park, calculateAverageSentiment, getSentimentColor, getSentimentDescription } from "@/data/parksData";
-import SentimentChart from "./SentimentChart";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import SentimentChart from "./SentimentChart";
 
 // Fix for leaflet icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -17,8 +15,41 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Utility functions for sentiment
+const calculateAverageSentiment = (reviews: { sentiment: number }[]) => {
+  if (reviews.length === 0) return 0;
+  const sum = reviews.reduce((acc, review) => acc + review.sentiment, 0);
+  return sum / reviews.length;
+};
+
+const getSentimentColor = (sentiment: number) => {
+  if (sentiment >= 0.6) return "#8CB369"; // Positive - green
+  if (sentiment >= 0.2) return "#F4D35E"; // Somewhat positive - yellow
+  if (sentiment >= -0.2) return "#A4937C"; // Neutral - brown/earth
+  if (sentiment >= -0.6) return "#F78C6B"; // Somewhat negative - orange
+  return "#E56B6F"; // Negative - red
+};
+
+const getSentimentDescription = (sentiment: number) => {
+  if (sentiment >= 0.6) return "Very Positive";
+  if (sentiment >= 0.2) return "Positive";
+  if (sentiment >= -0.2) return "Neutral";
+  if (sentiment >= -0.6) return "Negative";
+  return "Very Negative";
+};
+
 interface ParkMarkerProps {
-  park: Park;
+  park: {
+    id: string;
+    name: string;
+    position: [number, number];
+    description: string;
+    reviews: {
+      text: string;
+      sentiment: number;
+      keywords?: string[];
+    }[];
+  };
 }
 
 const ParkMarker = ({ park }: ParkMarkerProps) => {
@@ -36,7 +67,7 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
 
   return (
     <Marker 
-      position={park.position} 
+      position={park.position || [36.1627, -86.7816]} 
       icon={customIcon}
       eventHandlers={{
         click: () => {

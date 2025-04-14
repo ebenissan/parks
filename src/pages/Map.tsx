@@ -1,8 +1,7 @@
-
 import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import ParkMarker from "@/components/ParkMarker";
-import { Park, parks } from "@/data/parksData";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import "leaflet/dist/leaflet.css";
 
@@ -17,21 +16,80 @@ const RecenterMapView = ({ bounds }: { bounds: [[number, number], [number, numbe
   return null;
 };
 
+interface Park {
+  id: number;
+  name: string;
+  total_reviews: number;
+  avg_rating: number;
+  overall_sentiment: string;
+}
+
+interface Review {
+  id: number;
+  park_id: number;
+  username: string;
+  rating: number;
+  comment: string;
+  positive_score: number;
+  negative_score: number;
+}
+
 const Map = () => {
+  const [parks, setParks] = useState<Park[]>([]);
+  const [reviews, setReviews] = useState<{ [parkId: number]: Review[] }>({});
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = useRef(null);
   
   useEffect(() => {
-    // This is to ensure the CSS is loaded properly
-    setMapLoaded(true);
+    const fetchParksAndReviews = async () => {
+      // Fetch parks
+      const { data: parksData, error: parksError } = await supabase
+        .from('parks')
+        .select('*');
+
+      if (parksError) {
+        console.error('Error fetching parks:', parksError);
+        return;
+      }
+
+      setParks(parksData || []);
+
+      // Fetch reviews for each park
+      const reviewsData: { [parkId: number]: Review[] } = {};
+      for (const park of parksData || []) {
+        const { data: parkReviews, error: reviewsError } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('park_id', park.id);
+
+        if (reviewsError) {
+          console.error(`Error fetching reviews for park ${park.id}:`, reviewsError);
+          continue;
+        }
+
+        reviewsData[park.id] = parkReviews || [];
+      }
+
+      setReviews(reviewsData);
+      setMapLoaded(true);
+    };
+
+    fetchParksAndReviews();
   }, []);
   
   // Calculate the bounds based on all park positions
   const calculateBounds = (): [[number, number], [number, number]] => {
     if (parks.length === 0) return [[36.1627, -86.7816], [36.1627, -86.7816]];
     
-    const latitudes = parks.map(park => park.position[0]);
-    const longitudes = parks.map(park => park.position[1]);
+    // Placeholder for park positions - you'll need to add a geographic position column to your parks table
+    const positions = [
+      [36.11606399096618, -86.71331618629186],
+      [36.091231473579406, -86.68602193066967],
+      [35.962237683191226, -86.66724451846073]
+    ];
+    
+    const latitudes = positions.map(pos => pos[0]);
+    const longitudes = positions.map(pos => pos[1]);
     
     const minLat = Math.min(...latitudes);
     const maxLat = Math.max(...latitudes);
@@ -111,22 +169,13 @@ const Map = () => {
           {/* Map */}
           <div className="md:col-span-3 order-1 md:order-2">
             <div className="bg-white p-1 rounded-lg shadow-md border border-nature-green-dark/20 h-[70vh]">
-              {mapLoaded && (
+              {mapLoaded && parks.length > 0 && (
                 <MapContainer 
                   center={center} 
                   zoom={13} 
                   zoomControl={false}
                   className="h-full w-full rounded-md"
                   ref={mapRef}
-                  whenReady={() => {
-                    // Get map instance from ref
-                    const mapInstance = mapRef.current as any;
-                    if (mapInstance && mapInstance._map) {
-                      mapInstance._map.on('click', () => {
-                        mapInstance._map.fitBounds(bounds);
-                      });
-                    }
-                  }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -135,8 +184,21 @@ const Map = () => {
                   <ZoomControl position="bottomright" />
                   <RecenterMapView bounds={bounds} />
                   
-                  {parks.map((park: Park) => (
-                    <ParkMarker key={park.id} park={park} />
+                  {parks.map((park) => (
+                    <ParkMarker 
+                      key={park.id} 
+                      park={{
+                        id: park.id.toString(),
+                        name: park.name,
+                        position: [0, 0], // TODO: Add geographic position to parks table
+                        description: '', // TODO: Add description to parks table
+                        reviews: (reviews[park.id] || []).map(review => ({
+                          text: review.comment,
+                          sentiment: review.rating / 5 * 2 - 1, // Convert 1-5 rating to -1 to 1 sentiment
+                          keywords: []
+                        }))
+                      }} 
+                    />
                   ))}
                 </MapContainer>
               )}
