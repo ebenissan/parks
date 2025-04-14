@@ -132,15 +132,38 @@ const Learn = () => {
         
         {/* Activity Section */}
         <div id="activity" className={showActivity ? "" : "opacity-30 pointer-events-none"}>
-          <h2 className="text-2xl font-bold text-nature-green-dark mb-4">Symbol Sentiment Activity</h2>
-          <p className="mb-6 text-lg">
-            Apply what you've learned about sentiment analysis by determining the sentiment value of individual symbols.
-          </p>
+          <h2 className="text-2xl font-bold text-nature-green-dark mb-4">Think Like a Computer: Sentiment Analysis Challenge</h2>
+          
+          <Card className="border-nature-green-dark/20 shadow-lg mb-6">
+            <CardContent className="pt-6">
+              <h3 className="text-xl font-medium mb-4 text-nature-green-dark">How Do Computers Understand Sentiment?</h3>
+              <div className="prose max-w-none text-lg">
+                <p className="mb-4">
+                  <strong>Here's something interesting:</strong> Computers don't actually understand words like we do!
+                </p>
+                
+                <p className="mb-4">
+                  When a computer looks at a review or even just a word, it doesn't "know" what the words mean.
+                  Instead, it learns patterns from lots of examples, kind of like solving a puzzle!
+                </p>
+                
+                <p className="mb-4">
+                  In today's activity, you'll step inside a computer's "brain" to see how it might learn 
+                  which symbols represent positive feelings and which represent negative feelings.
+                </p>
+                
+                <p>
+                  Don't worry about what these symbols actually mean - just like a computer, 
+                  you'll need to figure out patterns by looking at how they're used together!
+                </p>
+              </div>
+            </CardContent>
+          </Card>
           
           <Card className="border-nature-green-dark/20 shadow-lg">
             <CardContent className="pt-6">
-              <h3 className="text-xl font-medium mb-4 text-nature-green-dark">Symbol Sentiment Analysis Activity</h3>
-              <p className="mb-4">Based on the combinations below, determine whether each individual symbol represents a positive or negative sentiment:</p>
+              <h3 className="text-xl font-medium mb-4 text-nature-green-dark">Symbol Sentiment Detective Challenge</h3>
+              <p className="mb-4">The table below shows different symbol combinations and their overall sentiment (positive or negative). Your job is to figure out which individual symbols are positive and which are negative!</p>
               
               <div className="overflow-x-auto mb-6">
                 <Table className="w-full">
@@ -173,17 +196,18 @@ const Learn = () => {
               
               {showHints && !isSubmitted && (
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded-md mb-6">
-                  <h4 className="font-medium text-blue-700 mb-2">Hints:</h4>
+                  <h4 className="font-medium text-blue-700 mb-2">Computer Logic Hints:</h4>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-blue-700">
                     <li>When symbols appear together, the majority sentiment wins</li>
                     <li>If there are equal numbers of positive and negative symbols, the result is negative</li>
                     <li>Look for patterns in combinations that result in the same sentiment</li>
+                    <li>Try to find the same symbol in different combinations to figure out its value</li>
                   </ul>
                 </div>
               )}
               
               <div className="mb-6">
-                <h4 className="font-medium mb-3">For each symbol, select whether it represents a positive or negative sentiment:</h4>
+                <h4 className="font-medium mb-3">Your Challenge: For each symbol below, decide if it represents positive or negative sentiment:</h4>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                   {uniqueSymbols.map((symbol) => (
                     <div key={symbol} className="flex items-center space-x-4 border rounded-md p-4">
@@ -232,19 +256,22 @@ const Learn = () => {
                 )}
                 
                 {isSubmitted ? (
-                  <Button 
-                    onClick={resetActivity} 
-                    className="flex items-center gap-2"
-                  >
-                    <RefreshCw size={16} />
-                    Try Again
-                  </Button>
+                  <div className="text-center">
+                    <p className="mb-3 text-lg">Great job! This is similar to how computers learn to understand sentiment in reviews!</p>
+                    <Button 
+                      onClick={resetActivity} 
+                      className="flex items-center gap-2"
+                    >
+                      <RefreshCw size={16} />
+                      Try Again
+                    </Button>
+                  </div>
                 ) : (
                   <Button 
                     onClick={handleSubmit} 
                     disabled={!allSymbolsAnswered}
                   >
-                    Check Answers
+                    Check My Answers
                   </Button>
                 )}
               </div>
