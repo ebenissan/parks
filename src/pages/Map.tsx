@@ -14,14 +14,14 @@ const Map = () => {
     setMapLoaded(true);
   }, []);
   
-  // Mill Creek, WA center coordinates
-  const center: [number, number] = [47.8601, -122.2054];
+  // Nashville, TN center coordinates
+  const center: [number, number] = [36.1627, -86.7816];
   
   return (
     <div className="min-h-screen bg-nature-cream flex flex-col">
       <div className="container mx-auto px-4 md:px-6 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-nature-green-dark mb-2">Mill Creek Parks Map</h1>
+          <h1 className="text-3xl font-bold text-nature-green-dark mb-2">Nashville Parks Map</h1>
           <p className="text-lg text-muted-foreground">
             Explore local parks and their community sentiment
           </p>

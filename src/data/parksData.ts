@@ -1,4 +1,3 @@
-
 export interface Park {
   id: string;
   name: string;
@@ -14,81 +13,42 @@ export interface Park {
 
 export const parks: Park[] = [
   {
-    id: "mcsp",
-    name: "Mill Creek Sports Park",
-    position: [47.8608, -122.2133],
-    description: "This large sports complex features baseball fields, soccer fields, and a playground area.",
+    id: "whitsett",
+    name: "Whitsett Park",
+    position: [36.11606399096618, -86.71331618629186],
+    description: "A neighborhood park located at 375 Wimpole Dr, Nashville, TN 37211 with recreational facilities.",
     reviews: [
-      { text: "Great fields for baseball! My kids love playing here.", sentiment: 0.8 },
-      { text: "Clean facilities and well-maintained grounds.", sentiment: 0.6 },
-      { text: "Parking can be difficult during tournaments.", sentiment: -0.3 },
-      { text: "The playground is a bit small compared to the sports fields.", sentiment: -0.1 },
-      { text: "Love the open space and walking trails around the perimeter.", sentiment: 0.7 }
+      { text: "Great local park with plenty of space for the kids to play.", sentiment: 0.7 },
+      { text: "The walking trails are well maintained and scenic.", sentiment: 0.6 },
+      { text: "Limited parking available during busy weekends.", sentiment: -0.3 },
+      { text: "Some areas could use better lighting in the evenings.", sentiment: -0.2 },
+      { text: "Love the open fields for sports and picnics.", sentiment: 0.8 }
     ]
   },
   {
-    id: "ntcp",
-    name: "North Creek Trail Park",
-    position: [47.8550, -122.2044],
-    description: "Linear park with walking and biking trails that follows North Creek through Mill Creek.",
+    id: "ezell",
+    name: "Ezell Road Park",
+    position: [36.091231473579406, -86.68602193066967],
+    description: "Community park located at 5135 Harding Pl, Nashville, TN 37211 with various amenities.",
     reviews: [
-      { text: "Beautiful trail for morning walks!", sentiment: 0.9 },
-      { text: "I saw so much wildlife - ducks, herons, and even a beaver!", sentiment: 0.8 },
-      { text: "Some sections flood during heavy rain.", sentiment: -0.4 },
-      { text: "The trail is well-maintained and connects well with other paths.", sentiment: 0.6 },
-      { text: "Wish there were more benches along the trail.", sentiment: -0.2 }
+      { text: "The playground equipment is modern and safe for children.", sentiment: 0.8 },
+      { text: "Beautiful trees provide great shade during summer months.", sentiment: 0.7 },
+      { text: "The basketball courts need resurfacing.", sentiment: -0.4 },
+      { text: "Peaceful atmosphere for morning walks.", sentiment: 0.6 },
+      { text: "Wish there were more benches throughout the park.", sentiment: -0.2 }
     ]
   },
   {
-    id: "mcp",
-    name: "Mill Creek Park",
-    position: [47.8629, -122.2067],
-    description: "Central community park with playground, picnic areas, and open space for events.",
+    id: "nolensville",
+    name: "Nolensville Park",
+    position: [35.962237683191226, -86.66724451846073],
+    description: "Large recreational area located at 2310 Nolensville Park Rd, Nolensville, TN 37135 with diverse facilities.",
     reviews: [
-      { text: "The playground equipment is outdated and needs renovation.", sentiment: -0.5 },
-      { text: "Great place for community gatherings and events!", sentiment: 0.7 },
-      { text: "Beautiful flower gardens in spring and summer.", sentiment: 0.9 },
-      { text: "The picnic shelters are always crowded on weekends.", sentiment: -0.3 },
-      { text: "Love the seasonal decorations and community involvement here.", sentiment: 0.8 }
-    ]
-  },
-  {
-    id: "hmp",
-    name: "Heron Meadows Park",
-    position: [47.8440, -122.2189],
-    description: "Natural wetland park with boardwalks and viewing areas for wildlife observation.",
-    reviews: [
-      { text: "Amazing place to see birds! Spotted several herons last visit.", sentiment: 0.9 },
-      { text: "Boardwalks need repair in some sections.", sentiment: -0.4 },
-      { text: "Very peaceful and serene environment.", sentiment: 0.7 },
-      { text: "Educational signs about local ecosystem are informative and well-designed.", sentiment: 0.6 },
-      { text: "Mosquitos can be really bad in summer months.", sentiment: -0.6 }
-    ]
-  },
-  {
-    id: "bwp",
-    name: "Buffalo Park",
-    position: [47.8513, -122.2236],
-    description: "Small neighborhood park with playground and basketball courts.",
-    reviews: [
-      { text: "Perfect size for young children to play safely.", sentiment: 0.7 },
-      { text: "Basketball courts need resurfacing.", sentiment: -0.5 },
-      { text: "Love that it's within walking distance of our neighborhood.", sentiment: 0.6 },
-      { text: "Could use more shade trees around the playground area.", sentiment: -0.2 },
-      { text: "Great community atmosphere with friendly neighbors.", sentiment: 0.8 }
-    ]
-  },
-  {
-    id: "psp",
-    name: "Pine Meadow Park",
-    position: [47.8566, -122.2201],
-    description: "Forested park with trails, picnic areas, and natural play elements.",
-    reviews: [
-      { text: "The natural playground is so creative! My kids love it.", sentiment: 0.9 },
-      { text: "Some trails get very muddy after rain.", sentiment: -0.3 },
-      { text: "Beautiful tall pines and peaceful atmosphere.", sentiment: 0.8 },
-      { text: "Great for forest bathing and nature connection.", sentiment: 0.7 },
-      { text: "Dog owners don't always clean up after their pets here.", sentiment: -0.7 }
+      { text: "Excellent sports facilities and well-maintained fields.", sentiment: 0.9 },
+      { text: "The nature trails are beautiful in all seasons.", sentiment: 0.8 },
+      { text: "Restrooms could be cleaner and better maintained.", sentiment: -0.5 },
+      { text: "Great place for community events and gatherings.", sentiment: 0.7 },
+      { text: "Limited shade in some areas makes it difficult during hot days.", sentiment: -0.3 }
     ]
   }
 ];
