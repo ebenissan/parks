@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import ParkMarker from "@/components/ParkMarker";
 import { Park, parks } from "@/data/parksData";
@@ -11,23 +11,62 @@ const RecenterMapView = ({ bounds }: { bounds: [[number, number], [number, numbe
   const map = useMap();
   
   useEffect(() => {
-    map.fitBounds(bounds);
+    if (map && bounds) {
+      map.fitBounds(bounds);
+    }
   }, [map, bounds]);
   
   return null;
 };
 
+// Creating a client-side only component to handle Leaflet
+const MapComponent = ({ 
+  bounds, 
+  parks 
+}: { 
+  bounds: [[number, number], [number, number]];
+  parks: Park[];
+}) => {
+  // Use the center of Nashville as fallback
+  const center: [number, number] = [36.1627, -86.7816];
+
+  return (
+    <MapContainer 
+      center={center} 
+      zoom={13} 
+      zoomControl={false}
+      className="h-full w-full rounded-md"
+      whenReady={(map) => {
+        // Add click handler to reset view
+        map.target.on('click', () => {
+          map.target.fitBounds(bounds);
+        });
+      }}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <ZoomControl position="bottomright" />
+      <RecenterMapView bounds={bounds} />
+      
+      {parks.map((park: Park) => (
+        <ParkMarker key={park.id} park={park} />
+      ))}
+    </MapContainer>
+  );
+};
+
 const Map = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
-  const mapRef = useRef(null);
   
   useEffect(() => {
-    // This is to ensure the CSS is loaded properly
+    // This ensures the map loads only on the client side
     setMapLoaded(true);
   }, []);
   
   // Calculate the bounds based on all park positions
-  const calculateBounds = (): [[number, number], [number, number]] => {
+  const bounds = useMemo((): [[number, number], [number, number]] => {
     if (parks.length === 0) return [[36.1627, -86.7816], [36.1627, -86.7816]];
     
     const latitudes = parks.map(park => park.position[0]);
@@ -46,12 +85,7 @@ const Map = () => {
       [minLat - latPadding, minLng - lngPadding],
       [maxLat + latPadding, maxLng + lngPadding]
     ] as [[number, number], [number, number]];
-  };
-  
-  const bounds = calculateBounds();
-  
-  // Use the center of Nashville as fallback
-  const center: [number, number] = [36.1627, -86.7816];
+  }, []);
   
   return (
     <div className="min-h-screen bg-nature-cream flex flex-col">
@@ -111,34 +145,12 @@ const Map = () => {
           {/* Map */}
           <div className="md:col-span-3 order-1 md:order-2">
             <div className="bg-white p-1 rounded-lg shadow-md border border-nature-green-dark/20 h-[70vh]">
-              {mapLoaded && (
-                <MapContainer 
-                  center={center} 
-                  zoom={13} 
-                  zoomControl={false}
-                  className="h-full w-full rounded-md"
-                  ref={mapRef}
-                  whenReady={() => {
-                    // Get map instance from ref
-                    const mapInstance = mapRef.current as any;
-                    if (mapInstance && mapInstance._map) {
-                      mapInstance._map.on('click', () => {
-                        mapInstance._map.fitBounds(bounds);
-                      });
-                    }
-                  }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <ZoomControl position="bottomright" />
-                  <RecenterMapView bounds={bounds} />
-                  
-                  {parks.map((park: Park) => (
-                    <ParkMarker key={park.id} park={park} />
-                  ))}
-                </MapContainer>
+              {mapLoaded ? (
+                <MapComponent bounds={bounds} parks={parks} />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p>Loading map...</p>
+                </div>
               )}
             </div>
           </div>
