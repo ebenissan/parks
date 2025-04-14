@@ -16,7 +16,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <MapPin className="h-6 w-6 text-nature-green-dark" />
-              <span className="ml-2 text-xl font-semibold text-nature-green-dark">Parks of Nashville</span>
+              <span className="ml-2 text-xl font-semibold text-nature-green-dark">Parks of Mill Creek</span>
             </Link>
           </div>
           <div className="flex space-x-2">
