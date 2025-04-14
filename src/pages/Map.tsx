@@ -1,8 +1,8 @@
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import ParkMarker from "@/components/ParkMarker";
-import { supabase } from "@/integrations/supabase/client";
+import { Park, parks } from "@/data/parksData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import "leaflet/dist/leaflet.css";
 
@@ -17,111 +17,21 @@ const RecenterMapView = ({ bounds }: { bounds: [[number, number], [number, numbe
   return null;
 };
 
-// Define interfaces for our Supabase tables
-interface Park {
-  id: number;
-  name: string;
-  total_reviews: number;
-  avg_rating: number;
-  total_positive: number;
-  total_negative: number;
-  overall_sentiment: string;
-  position: string | null; // This will be converted to [number, number]
-  description: string;
-}
-
-interface Review {
-  id: number;
-  park_id: number;
-  username: string;
-  rating: number;
-  comment: string;
-  positive_score: number;
-  negative_score: number;
-  created_at: string;
-}
-
 const Map = () => {
-  const [parks, setParks] = useState<Park[]>([]);
-  const [reviews, setReviews] = useState<{ [parkId: number]: Review[] }>({});
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = useRef(null);
   
   useEffect(() => {
-    const fetchParksAndReviews = async () => {
-      try {
-        // Fetch parks data
-        const { data: parksData, error: parksError } = await supabase
-          .from('parks')
-          .select('*');
-
-        if (parksError) {
-          console.error('Error fetching parks:', parksError);
-          return;
-        }
-
-        setParks(parksData || []);
-
-        // Fetch reviews for each park
-        const reviewsData: { [parkId: number]: Review[] } = {};
-        for (const park of parksData || []) {
-          try {
-            const { data: parkReviews, error: reviewsError } = await supabase
-              .from('reviews')
-              .select('*')
-              .eq('park_id', park.id);
-
-            if (reviewsError) {
-              console.error(`Error fetching reviews for park ${park.id}:`, reviewsError);
-              continue;
-            }
-
-            reviewsData[park.id] = parkReviews || [];
-          } catch (error) {
-            console.error(`Error in review fetch for park ${park.id}:`, error);
-          }
-        }
-
-        setReviews(reviewsData);
-        setMapLoaded(true);
-      } catch (error) {
-        console.error('Unexpected error in fetchParksAndReviews:', error);
-      }
-    };
-
-    fetchParksAndReviews();
+    // This is to ensure the CSS is loaded properly
+    setMapLoaded(true);
   }, []);
-  
-  // Parse position string from Postgres POINT type to [lat, lng] array
-  const parsePosition = (position: string | null): [number, number] => {
-    if (!position) {
-      // Default to Nashville center if no position
-      return [36.1627, -86.7816];
-    }
-    
-    try {
-      // Format is typically "(lng,lat)" so we need to swap them
-      const matches = position.match(/\(([^,]+),([^)]+)\)/);
-      if (matches && matches.length === 3) {
-        const lng = parseFloat(matches[1]);
-        const lat = parseFloat(matches[2]);
-        return [lat, lng]; // Leaflet uses [lat, lng] format
-      }
-    } catch (error) {
-      console.error('Error parsing position:', error);
-    }
-    
-    return [36.1627, -86.7816]; // Default to Nashville center
-  };
   
   // Calculate the bounds based on all park positions
   const calculateBounds = (): [[number, number], [number, number]] => {
     if (parks.length === 0) return [[36.1627, -86.7816], [36.1627, -86.7816]];
     
-    const positions = parks.map(park => parsePosition(park.position));
-    
-    const latitudes = positions.map(pos => pos[0]);
-    const longitudes = positions.map(pos => pos[1]);
+    const latitudes = parks.map(park => park.position[0]);
+    const longitudes = parks.map(park => park.position[1]);
     
     const minLat = Math.min(...latitudes);
     const maxLat = Math.max(...latitudes);
@@ -129,8 +39,8 @@ const Map = () => {
     const maxLng = Math.max(...longitudes);
     
     // Add some padding
-    const latPadding = (maxLat - minLat) * 0.1 || 0.01;
-    const lngPadding = (maxLng - minLng) * 0.1 || 0.01;
+    const latPadding = (maxLat - minLat) * 0.1;
+    const lngPadding = (maxLng - minLng) * 0.1;
     
     return [
       [minLat - latPadding, minLng - lngPadding],
@@ -138,11 +48,10 @@ const Map = () => {
     ] as [[number, number], [number, number]];
   };
   
+  const bounds = calculateBounds();
+  
   // Use the center of Nashville as fallback
   const center: [number, number] = [36.1627, -86.7816];
-  
-  // Calculate bounds for the map
-  const bounds = useMemo(() => calculateBounds(), [parks]);
   
   return (
     <div className="min-h-screen bg-nature-cream flex flex-col">
@@ -202,13 +111,22 @@ const Map = () => {
           {/* Map */}
           <div className="md:col-span-3 order-1 md:order-2">
             <div className="bg-white p-1 rounded-lg shadow-md border border-nature-green-dark/20 h-[70vh]">
-              {mapLoaded && parks.length > 0 && (
+              {mapLoaded && (
                 <MapContainer 
                   center={center} 
                   zoom={13} 
                   zoomControl={false}
                   className="h-full w-full rounded-md"
                   ref={mapRef}
+                  whenReady={() => {
+                    // Get map instance from ref
+                    const mapInstance = mapRef.current as any;
+                    if (mapInstance && mapInstance._map) {
+                      mapInstance._map.on('click', () => {
+                        mapInstance._map.fitBounds(bounds);
+                      });
+                    }
+                  }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -217,21 +135,8 @@ const Map = () => {
                   <ZoomControl position="bottomright" />
                   <RecenterMapView bounds={bounds} />
                   
-                  {parks.map((park) => (
-                    <ParkMarker 
-                      key={park.id} 
-                      park={{
-                        id: park.id.toString(),
-                        name: park.name,
-                        position: parsePosition(park.position),
-                        description: park.description || 'A beautiful Nashville park',
-                        reviews: (reviews[park.id] || []).map(review => ({
-                          text: review.comment,
-                          sentiment: review.rating / 5 * 2 - 1, // Convert 1-5 rating to -1 to 1 sentiment
-                          keywords: []
-                        }))
-                      }} 
-                    />
+                  {parks.map((park: Park) => (
+                    <ParkMarker key={park.id} park={park} />
                   ))}
                 </MapContainer>
               )}
