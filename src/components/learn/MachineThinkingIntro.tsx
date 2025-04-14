@@ -1,29 +1,30 @@
 
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, MonitorSmartphone, Search, ThumbsUp } from "lucide-react";
+import { Brain, MonitorSmartphone, Search, ThumbsUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ScrollytellingSection = ({ 
   icon, 
   title, 
   description,
   imageAlt,
-  index
+  index,
+  isActive
 }: { 
   icon: React.ReactNode;
   title: string;
   description: string;
   imageAlt: string;
   index: number;
+  isActive: boolean;
 }) => {
+  if (!isActive) return null;
+  
   return (
-    <div className="py-12 min-h-[300px] flex items-center" data-section={index}>
+    <div className="py-6 min-h-[300px] flex items-center animate-fade-in" data-section={index}>
       <div className="grid md:grid-cols-2 gap-6 items-center">
-        <div 
-          className="flex flex-col space-y-4 animate-fade-in"
-          style={{ animationDelay: `${index * 0.2}s` }}
-        >
+        <div className="flex flex-col space-y-4">
           <div className="flex items-center gap-2">
             <div className="bg-nature-green-light/20 p-3 rounded-full">{icon}</div>
             <h3 className="text-xl font-medium text-nature-green-dark">{title}</h3>
@@ -31,10 +32,7 @@ const ScrollytellingSection = ({
           <p className="text-lg">{description}</p>
         </div>
         
-        <div 
-          className="flex justify-center animate-fade-in" 
-          style={{ animationDelay: `${index * 0.2 + 0.1}s` }}
-        >
+        <div className="flex justify-center">
           <div className="bg-white rounded-lg p-4 shadow-md w-full max-w-[300px]">
             <img 
               src={`/images/sentiment-${index + 1}.svg`} 
@@ -55,6 +53,8 @@ const ScrollytellingSection = ({
 };
 
 const MachineThinkingIntro = () => {
+  const [currentSection, setCurrentSection] = useState(0);
+  
   // Array of scrollytelling sections
   const sections = [
     {
@@ -83,6 +83,18 @@ const MachineThinkingIntro = () => {
     }
   ];
 
+  const handleNext = () => {
+    if (currentSection < sections.length - 1) {
+      setCurrentSection(currentSection + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentSection > 0) {
+      setCurrentSection(currentSection - 1);
+    }
+  };
+
   return (
     <Card className="border-nature-green-dark/20 shadow-lg mb-6">
       <CardContent className="pt-6">
@@ -90,20 +102,53 @@ const MachineThinkingIntro = () => {
           How Do Computers Understand Feelings?
         </h3>
         
-        <ScrollArea className="h-[600px] pr-4">
-          <div className="space-y-4">
-            {sections.map((section, index) => (
-              <ScrollytellingSection
+        <div className="min-h-[400px] relative">
+          {sections.map((section, index) => (
+            <ScrollytellingSection
+              key={index}
+              icon={section.icon}
+              title={section.title}
+              description={section.description}
+              imageAlt={section.imageAlt}
+              index={index}
+              isActive={index === currentSection}
+            />
+          ))}
+        </div>
+        
+        <div className="flex justify-between items-center mt-4">
+          <Button 
+            onClick={handlePrevious} 
+            variant="outline" 
+            className="flex items-center gap-1"
+            disabled={currentSection === 0}
+          >
+            <ChevronLeft size={16} /> Previous
+          </Button>
+          
+          <div className="flex gap-1">
+            {sections.map((_, index) => (
+              <Button 
                 key={index}
-                icon={section.icon}
-                title={section.title}
-                description={section.description}
-                imageAlt={section.imageAlt}
-                index={index}
-              />
+                variant="ghost" 
+                size="sm"
+                className={`w-8 h-8 p-0 ${currentSection === index ? 'bg-nature-green-dark text-white' : 'bg-gray-200'}`}
+                onClick={() => setCurrentSection(index)}
+              >
+                {index + 1}
+              </Button>
             ))}
           </div>
-        </ScrollArea>
+          
+          <Button 
+            onClick={handleNext} 
+            variant="outline"
+            className="flex items-center gap-1"
+            disabled={currentSection === sections.length - 1}
+          >
+            Next <ChevronRight size={16} />
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
