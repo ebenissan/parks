@@ -21,9 +21,6 @@ const Learn = () => {
       <div className="container mx-auto px-4 md:px-6 py-8">
         <LearnHeader />
         
-        {/* Machine Thinking Intro with click-through sections */}
-        <MachineThinkingIntro />
-        
         {/* Explainer Section */}
         <ExplainerSection onGoToActivity={handleGoToActivity} />
         
