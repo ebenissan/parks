@@ -119,14 +119,14 @@ const MachineThinkingIntro = () => {
         <div className="flex justify-between items-center mt-4">
           <Button 
             onClick={handlePrevious} 
-            variant="outline" 
-            className="flex items-center gap-1"
+            variant="ghost" 
+            className="absolute left-0 top-1/2 -translate-y-1/2"
             disabled={currentSection === 0}
           >
-            <ChevronLeft size={16} /> Previous
+            <ChevronLeft size={24} />
           </Button>
           
-          <div className="flex gap-1">
+          <div className="flex gap-1 mx-auto">
             {sections.map((_, index) => (
               <Button 
                 key={index}
@@ -142,11 +142,11 @@ const MachineThinkingIntro = () => {
           
           <Button 
             onClick={handleNext} 
-            variant="outline"
-            className="flex items-center gap-1"
+            variant="ghost"
+            className="absolute right-0 top-1/2 -translate-y-1/2"
             disabled={currentSection === sections.length - 1}
           >
-            Next <ChevronRight size={16} />
+            <ChevronRight size={24} />
           </Button>
         </div>
       </CardContent>
