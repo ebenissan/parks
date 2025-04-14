@@ -27,7 +27,7 @@ const Map = () => {
   }, []);
   
   // Calculate the bounds based on all park positions
-  const calculateBounds = () => {
+  const calculateBounds = (): [[number, number], [number, number]] => {
     if (parks.length === 0) return [[36.1627, -86.7816], [36.1627, -86.7816]];
     
     const latitudes = parks.map(park => park.position[0]);
@@ -118,10 +118,14 @@ const Map = () => {
                   zoomControl={false}
                   className="h-full w-full rounded-md"
                   ref={mapRef}
-                  whenReady={(map) => {
-                    map.target.on('click', () => {
-                      map.target.fitBounds(bounds);
-                    });
+                  whenReady={() => {
+                    // Get map instance from ref
+                    const mapInstance = mapRef.current as any;
+                    if (mapInstance && mapInstance._map) {
+                      mapInstance._map.on('click', () => {
+                        mapInstance._map.fitBounds(bounds);
+                      });
+                    }
                   }}
                 >
                   <TileLayer
