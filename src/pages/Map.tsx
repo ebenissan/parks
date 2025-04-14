@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import ParkMarker from "@/components/ParkMarker";
@@ -16,12 +17,17 @@ const RecenterMapView = ({ bounds }: { bounds: [[number, number], [number, numbe
   return null;
 };
 
+// Define interfaces for our Supabase tables
 interface Park {
   id: number;
   name: string;
   total_reviews: number;
   avg_rating: number;
+  total_positive: number;
+  total_negative: number;
   overall_sentiment: string;
+  position: string | null; // This will be converted to [number, number]
+  description: string;
 }
 
 interface Review {
@@ -32,6 +38,7 @@ interface Review {
   comment: string;
   positive_score: number;
   negative_score: number;
+  created_at: string;
 }
 
 const Map = () => {
@@ -45,7 +52,7 @@ const Map = () => {
       // Fetch parks
       const { data: parksData, error: parksError } = await supabase
         .from('parks')
-        .select('*');
+        .select('*') as { data: Park[] | null, error: any };
 
       if (parksError) {
         console.error('Error fetching parks:', parksError);
@@ -60,7 +67,7 @@ const Map = () => {
         const { data: parkReviews, error: reviewsError } = await supabase
           .from('reviews')
           .select('*')
-          .eq('park_id', park.id);
+          .eq('park_id', park.id) as { data: Review[] | null, error: any };
 
         if (reviewsError) {
           console.error(`Error fetching reviews for park ${park.id}:`, reviewsError);
@@ -77,16 +84,33 @@ const Map = () => {
     fetchParksAndReviews();
   }, []);
   
+  // Parse position string from Postgres POINT type to [lat, lng] array
+  const parsePosition = (position: string | null): [number, number] => {
+    if (!position) {
+      // Default to Nashville center if no position
+      return [36.1627, -86.7816];
+    }
+    
+    try {
+      // Format is typically "(lng,lat)" so we need to swap them
+      const matches = position.match(/\(([^,]+),([^)]+)\)/);
+      if (matches && matches.length === 3) {
+        const lng = parseFloat(matches[1]);
+        const lat = parseFloat(matches[2]);
+        return [lat, lng]; // Leaflet uses [lat, lng] format
+      }
+    } catch (error) {
+      console.error('Error parsing position:', error);
+    }
+    
+    return [36.1627, -86.7816]; // Default to Nashville center
+  };
+  
   // Calculate the bounds based on all park positions
   const calculateBounds = (): [[number, number], [number, number]] => {
     if (parks.length === 0) return [[36.1627, -86.7816], [36.1627, -86.7816]];
     
-    // Placeholder for park positions - you'll need to add a geographic position column to your parks table
-    const positions = [
-      [36.11606399096618, -86.71331618629186],
-      [36.091231473579406, -86.68602193066967],
-      [35.962237683191226, -86.66724451846073]
-    ];
+    const positions = parks.map(park => parsePosition(park.position));
     
     const latitudes = positions.map(pos => pos[0]);
     const longitudes = positions.map(pos => pos[1]);
@@ -97,8 +121,8 @@ const Map = () => {
     const maxLng = Math.max(...longitudes);
     
     // Add some padding
-    const latPadding = (maxLat - minLat) * 0.1;
-    const lngPadding = (maxLng - minLng) * 0.1;
+    const latPadding = (maxLat - minLat) * 0.1 || 0.01;
+    const lngPadding = (maxLng - minLng) * 0.1 || 0.01;
     
     return [
       [minLat - latPadding, minLng - lngPadding],
@@ -190,8 +214,8 @@ const Map = () => {
                       park={{
                         id: park.id.toString(),
                         name: park.name,
-                        position: [0, 0], // TODO: Add geographic position to parks table
-                        description: '', // TODO: Add description to parks table
+                        position: parsePosition(park.position),
+                        description: park.description || 'A beautiful Nashville park',
                         reviews: (reviews[park.id] || []).map(review => ({
                           text: review.comment,
                           sentiment: review.rating / 5 * 2 - 1, // Convert 1-5 rating to -1 to 1 sentiment

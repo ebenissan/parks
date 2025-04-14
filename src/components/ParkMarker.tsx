@@ -67,7 +67,7 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
 
   return (
     <Marker 
-      position={park.position || [36.1627, -86.7816]} 
+      position={park.position} 
       icon={customIcon}
       eventHandlers={{
         click: () => {
