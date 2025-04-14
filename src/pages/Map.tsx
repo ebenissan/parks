@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import ParkMarker from "@/components/ParkMarker";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,10 +50,10 @@ const Map = () => {
   useEffect(() => {
     const fetchParksAndReviews = async () => {
       try {
-        // Fetch parks with type assertion to bypass TypeScript errors
-        const { data: parksData, error: parksError } = await (supabase
+        // Fetch parks data
+        const { data: parksData, error: parksError } = await supabase
           .from('parks')
-          .select('*') as any);
+          .select('*');
 
         if (parksError) {
           console.error('Error fetching parks:', parksError);
@@ -66,10 +66,10 @@ const Map = () => {
         const reviewsData: { [parkId: number]: Review[] } = {};
         for (const park of parksData || []) {
           try {
-            const { data: parkReviews, error: reviewsError } = await (supabase
+            const { data: parkReviews, error: reviewsError } = await supabase
               .from('reviews')
               .select('*')
-              .eq('park_id', park.id) as any);
+              .eq('park_id', park.id);
 
             if (reviewsError) {
               console.error(`Error fetching reviews for park ${park.id}:`, reviewsError);
@@ -140,6 +140,9 @@ const Map = () => {
   
   // Use the center of Nashville as fallback
   const center: [number, number] = [36.1627, -86.7816];
+  
+  // Calculate bounds for the map
+  const bounds = useMemo(() => calculateBounds(), [parks]);
   
   return (
     <div className="min-h-screen bg-nature-cream flex flex-col">
