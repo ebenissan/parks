@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Check, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Symbol definitions with their correct sentiment values
 const symbolSentiments = {
@@ -21,67 +23,73 @@ const symbolSentiments = {
   "0": "sad",
 };
 
-// Symbol combinations for the activity
+// Symbol combinations for the activity with pre-calculated overall sentiment
 const sentimentSymbols = [
-  { id: 1, symbol: "■ ✿", symbols: ["■", "✿"] },
-  { id: 2, symbol: "■ ✦", symbols: ["■", "✦"] },
-  { id: 3, symbol: "■ ⚑", symbols: ["■", "⚑"] },
-  { id: 4, symbol: "◁ ■", symbols: ["◁", "■"] },
-  { id: 5, symbol: "§ ■ ✦", symbols: ["§", "■", "✦"] },
-  { id: 6, symbol: "♟ ✿", symbols: ["♟", "✿"] },
-  { id: 7, symbol: "♟ ✦", symbols: ["♟", "✦"] },
-  { id: 8, symbol: "0 ■ ✿", symbols: ["0", "■", "✿"] },
-  { id: 9, symbol: "■ ✦ 0", symbols: ["■", "✦", "0"] },
-  { id: 10, symbol: "♟ ⚑", symbols: ["♟", "⚑"] },
+  { id: 1, symbol: "■ ✿", sentiment: "positive", symbols: ["■", "✿"] },
+  { id: 2, symbol: "■ ✦", sentiment: "positive", symbols: ["■", "✦"] },
+  { id: 3, symbol: "■ ⚑", sentiment: "positive", symbols: ["■", "⚑"] },
+  { id: 4, symbol: "◁ ■", sentiment: "positive", symbols: ["◁", "■"] },
+  { id: 5, symbol: "§ ■ ✦", sentiment: "positive", symbols: ["§", "■", "✦"] },
+  { id: 6, symbol: "♟ ✿", sentiment: "negative", symbols: ["♟", "✿"] },
+  { id: 7, symbol: "♟ ✦", sentiment: "negative", symbols: ["♟", "✦"] },
+  { id: 8, symbol: "0 ■ ✿", sentiment: "positive", symbols: ["0", "■", "✿"] },
+  { id: 9, symbol: "■ ✦ 0", sentiment: "positive", symbols: ["■", "✦", "0"] },
+  { id: 10, symbol: "♟ ⚑", sentiment: "positive", symbols: ["♟", "⚑"] },
 ];
+
+// Get list of unique symbols used in the activity
+const uniqueSymbols = Array.from(new Set(sentimentSymbols.flatMap(item => item.symbols)));
 
 const Learn = () => {
   // Combine all reviews for a comprehensive example
   const allReviews = parks.flatMap(park => park.reviews);
   
-  // State for the sentiment matching activity
-  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  // State for the user's answers about individual symbols
+  const [userSymbolSentiments, setUserSymbolSentiments] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showHints, setShowHints] = useState(false);
   
-  const handleSentimentSelect = (id: number, sentiment: string) => {
-    setUserAnswers(prev => ({
+  const handleSymbolSentimentSelect = (symbol: string, sentiment: string) => {
+    setUserSymbolSentiments(prev => ({
       ...prev,
-      [id]: sentiment,
+      [symbol]: sentiment,
     }));
   };
   
-  const checkAnswer = (item: typeof sentimentSymbols[0]) => {
-    // Calculate if positive or negative based on the majority of symbols' sentiments
-    let positiveCount = 0;
-    let negativeCount = 0;
+  const calculateCombinationSentiment = (symbols: string[]) => {
+    let happyCount = 0;
+    let sadCount = 0;
     
-    item.symbols.forEach(symbol => {
+    symbols.forEach(symbol => {
       if (symbolSentiments[symbol as keyof typeof symbolSentiments] === "happy") {
-        positiveCount++;
+        happyCount++;
       } else {
-        negativeCount++;
+        sadCount++;
       }
     });
     
-    return positiveCount > negativeCount ? "positive" : "negative";
+    return happyCount > sadCount ? "positive" : "negative";
   };
   
   const handleSubmit = () => {
-    const totalQuestions = sentimentSymbols.length;
-    const correctAnswers = sentimentSymbols.filter(item => 
-      userAnswers[item.id] === checkAnswer(item)
+    const totalSymbols = uniqueSymbols.length;
+    const correctAnswers = uniqueSymbols.filter(symbol => 
+      userSymbolSentiments[symbol] === symbolSentiments[symbol as keyof typeof symbolSentiments]
     ).length;
     
-    const score = Math.round((correctAnswers / totalQuestions) * 100);
+    const score = Math.round((correctAnswers / totalSymbols) * 100);
     
-    toast.success(`You scored ${score}%! ${correctAnswers} out of ${totalQuestions} correct.`);
+    toast.success(`You scored ${score}%! ${correctAnswers} out of ${totalSymbols} symbols correct.`);
     setIsSubmitted(true);
   };
   
   const resetActivity = () => {
-    setUserAnswers({});
+    setUserSymbolSentiments({});
     setIsSubmitted(false);
+    setShowHints(false);
   };
+  
+  const allSymbolsAnswered = uniqueSymbols.every(symbol => userSymbolSentiments[symbol]);
   
   return (
     <div className="min-h-screen bg-nature-cream">
@@ -114,28 +122,15 @@ const Learn = () => {
           <div className="space-y-8">
             <Card className="border-nature-green-dark/20 shadow-lg">
               <CardContent className="pt-6">
-                <h3 className="text-xl font-medium mb-4 text-nature-green-dark">Sentiment Matching Activity</h3>
-                <p className="mb-2">First, understand which symbols represent positive or negative sentiment:</p>
+                <h3 className="text-xl font-medium mb-4 text-nature-green-dark">Symbol Sentiment Analysis Activity</h3>
+                <p className="mb-4">Based on the combinations below, determine whether each individual symbol represents a positive or negative sentiment:</p>
                 
-                <div className="grid grid-cols-4 gap-2 mb-6">
-                  {Object.entries(symbolSentiments).map(([symbol, sentiment]) => (
-                    <div key={symbol} className="flex items-center justify-center p-2 border rounded-md">
-                      <span className="text-xl mr-2">{symbol}</span>
-                      <span className={`text-sm ${sentiment === "happy" ? "text-green-500" : "text-red-500"}`}>
-                        {sentiment === "happy" ? "Positive" : "Negative"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-                <p className="mb-4">Now match each symbol combination with its correct overall sentiment (positive or negative):</p>
-                
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto mb-6">
                   <Table className="w-full">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-1/2 text-center">Symbol Combination</TableHead>
-                        <TableHead className="w-1/2 text-center">Sentiment</TableHead>
+                        <TableHead className="w-1/2 text-center">Overall Sentiment</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -145,33 +140,13 @@ const Learn = () => {
                             {item.symbol}
                           </TableCell>
                           <TableCell className="text-center">
-                            {isSubmitted ? (
-                              <div className="flex justify-center items-center gap-2">
-                                {userAnswers[item.id] === checkAnswer(item) ? (
-                                  <Check className="text-green-500" />
-                                ) : (
-                                  <X className="text-red-500" />
-                                )}
-                                <span>{checkAnswer(item)}</span>
-                              </div>
-                            ) : (
-                              <div className="flex justify-center gap-2">
-                                <Button 
-                                  variant={userAnswers[item.id] === "positive" ? "default" : "outline"} 
-                                  className={userAnswers[item.id] === "positive" ? "bg-nature-green-light" : ""}
-                                  onClick={() => handleSentimentSelect(item.id, "positive")}
-                                >
-                                  Positive 😃
-                                </Button>
-                                <Button 
-                                  variant={userAnswers[item.id] === "negative" ? "default" : "outline"} 
-                                  className={userAnswers[item.id] === "negative" ? "bg-nature-orange" : ""}
-                                  onClick={() => handleSentimentSelect(item.id, "negative")}
-                                >
-                                  Negative 😠
-                                </Button>
-                              </div>
-                            )}
+                            <span className={`py-1 px-3 rounded-full ${
+                              item.sentiment === "positive" 
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}>
+                              {item.sentiment === "positive" ? "Positive 😃" : "Negative 😠"}
+                            </span>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -179,7 +154,66 @@ const Learn = () => {
                   </Table>
                 </div>
                 
-                <div className="mt-6 flex justify-center">
+                {showHints && !isSubmitted && (
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-md mb-6">
+                    <h4 className="font-medium text-blue-700 mb-2">Hints:</h4>
+                    <ul className="list-disc pl-5 space-y-1 text-sm text-blue-700">
+                      <li>When symbols appear together, the majority sentiment wins</li>
+                      <li>If there are equal numbers of positive and negative symbols, the result is negative</li>
+                      <li>Look for patterns in combinations that result in the same sentiment</li>
+                    </ul>
+                  </div>
+                )}
+                
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">For each symbol, select whether it represents a positive or negative sentiment:</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {uniqueSymbols.map((symbol) => (
+                      <div key={symbol} className="flex items-center space-x-4 border rounded-md p-4">
+                        <span className="text-2xl">{symbol}</span>
+                        <RadioGroup 
+                          value={userSymbolSentiments[symbol] || ""}
+                          className="flex flex-row space-x-2"
+                          onValueChange={(value) => handleSymbolSentimentSelect(symbol, value)}
+                          disabled={isSubmitted}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="happy" id={`${symbol}-happy`} />
+                            <label htmlFor={`${symbol}-happy`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                              Positive
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="sad" id={`${symbol}-sad`} />
+                            <label htmlFor={`${symbol}-sad`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                              Negative
+                            </label>
+                          </div>
+                        </RadioGroup>
+                        {isSubmitted && (
+                          <div className="ml-auto">
+                            {userSymbolSentiments[symbol] === symbolSentiments[symbol as keyof typeof symbolSentiments] ? (
+                              <Check className="text-green-500" />
+                            ) : (
+                              <X className="text-red-500" />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center mt-6">
+                  {!isSubmitted && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowHints(!showHints)}
+                    >
+                      {showHints ? "Hide Hints" : "Show Hints"}
+                    </Button>
+                  )}
+                  
                   {isSubmitted ? (
                     <Button 
                       onClick={resetActivity} 
@@ -191,14 +225,14 @@ const Learn = () => {
                   ) : (
                     <Button 
                       onClick={handleSubmit} 
-                      disabled={Object.keys(userAnswers).length !== sentimentSymbols.length}
+                      disabled={!allSymbolsAnswered}
                     >
                       Check Answers
                     </Button>
                   )}
                 </div>
                 
-                {!isSubmitted && Object.keys(userAnswers).length !== sentimentSymbols.length && (
+                {!isSubmitted && !allSymbolsAnswered && (
                   <p className="text-center text-sm text-muted-foreground mt-2">
                     Select a sentiment for all symbols before checking your answers.
                   </p>
