@@ -71,7 +71,6 @@ const Map = () => {
             <ParkMarker
               key={park.id}
               park={park}
-              onClick={() => setSelectedParkId(park.id)}
             />
           ))}
         </MapContainer>
