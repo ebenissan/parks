@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, PieChart, MapPin, Info } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import ParkReviewsPieChart from "./ParkReviewsPieChart";
 
 interface ParkDetailsDialogProps {
@@ -60,7 +60,7 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                       return (
                         <TableRow key={index}>
                           <TableCell className="whitespace-nowrap">
-                            {format(new Date(review.date), 'MMM d, yyyy')}
+                            {format(parseISO(review.date), 'MMM d, yyyy')}
                           </TableCell>
                           <TableCell>{review.text}</TableCell>
                           <TableCell>

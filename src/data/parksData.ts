@@ -1,3 +1,4 @@
+
 export interface Park {
   id: string;
   name: string;
@@ -8,6 +9,7 @@ export interface Park {
     text: string;
     sentiment: number; // -1 to 1 (negative to positive)
     keywords?: string[];
+    date: string; // Adding this field which was missing
   }[];
 }
 
@@ -18,11 +20,11 @@ export const parks: Park[] = [
     position: [36.11606399096618, -86.71331618629186],
     description: "A neighborhood park located at 375 Wimpole Dr, Nashville, TN 37211 with recreational facilities.",
     reviews: [
-      { text: "Great local park with plenty of space for the kids to play.", sentiment: 0.7 },
-      { text: "The walking trails are well maintained and scenic.", sentiment: 0.6 },
-      { text: "Limited parking available during busy weekends.", sentiment: -0.3 },
-      { text: "Some areas could use better lighting in the evenings.", sentiment: -0.2 },
-      { text: "Love the open fields for sports and picnics.", sentiment: 0.8 }
+      { text: "Great local park with plenty of space for the kids to play.", sentiment: 0.7, date: "2025-03-15" },
+      { text: "The walking trails are well maintained and scenic.", sentiment: 0.6, date: "2025-02-28" },
+      { text: "Limited parking available during busy weekends.", sentiment: -0.3, date: "2025-02-20" },
+      { text: "Some areas could use better lighting in the evenings.", sentiment: -0.2, date: "2025-01-15" },
+      { text: "Love the open fields for sports and picnics.", sentiment: 0.8, date: "2025-01-05" }
     ]
   },
   {
@@ -31,11 +33,11 @@ export const parks: Park[] = [
     position: [36.091231473579406, -86.68602193066967],
     description: "Community park located at 5135 Harding Pl, Nashville, TN 37211 with various amenities.",
     reviews: [
-      { text: "The playground equipment is modern and safe for children.", sentiment: 0.8 },
-      { text: "Beautiful trees provide great shade during summer months.", sentiment: 0.7 },
-      { text: "The basketball courts need resurfacing.", sentiment: -0.4 },
-      { text: "Peaceful atmosphere for morning walks.", sentiment: 0.6 },
-      { text: "Wish there were more benches throughout the park.", sentiment: -0.2 }
+      { text: "The playground equipment is modern and safe for children.", sentiment: 0.8, date: "2025-03-10" },
+      { text: "Beautiful trees provide great shade during summer months.", sentiment: 0.7, date: "2025-02-22" },
+      { text: "The basketball courts need resurfacing.", sentiment: -0.4, date: "2025-02-15" },
+      { text: "Peaceful atmosphere for morning walks.", sentiment: 0.6, date: "2025-01-30" },
+      { text: "Wish there were more benches throughout the park.", sentiment: -0.2, date: "2025-01-20" }
     ]
   },
   {
@@ -44,11 +46,11 @@ export const parks: Park[] = [
     position: [35.962237683191226, -86.66724451846073],
     description: "Large recreational area located at 2310 Nolensville Park Rd, Nolensville, TN 37135 with diverse facilities.",
     reviews: [
-      { text: "Excellent sports facilities and well-maintained fields.", sentiment: 0.9 },
-      { text: "The nature trails are beautiful in all seasons.", sentiment: 0.8 },
-      { text: "Restrooms could be cleaner and better maintained.", sentiment: -0.5 },
-      { text: "Great place for community events and gatherings.", sentiment: 0.7 },
-      { text: "Limited shade in some areas makes it difficult during hot days.", sentiment: -0.3 }
+      { text: "Excellent sports facilities and well-maintained fields.", sentiment: 0.9, date: "2025-03-20" },
+      { text: "The nature trails are beautiful in all seasons.", sentiment: 0.8, date: "2025-03-05" },
+      { text: "Restrooms could be cleaner and better maintained.", sentiment: -0.5, date: "2025-02-25" },
+      { text: "Great place for community events and gatherings.", sentiment: 0.7, date: "2025-02-10" },
+      { text: "Limited shade in some areas makes it difficult during hot days.", sentiment: -0.3, date: "2025-01-25" }
     ]
   }
 ];
