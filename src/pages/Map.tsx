@@ -5,7 +5,7 @@ import { parks } from "@/data/parksData";
 import ParkMarker from "@/components/ParkMarker";
 import ParkDetailsDialog from "@/components/ParkDetailsDialog";
 import "leaflet/dist/leaflet.css";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Center of Mill Creek area
 const MILL_CREEK_CENTER: [number, number] = [36.0965, -86.7162];
@@ -40,10 +40,10 @@ const MapCenterAnimator = ({ center, zoom, selectedParkId }: MapCenterAnimatorPr
 
 const Map = () => {
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
-  // Fix the TypeScript error by providing a valid function signature for when the map is ready
-  const handleMapReady = useCallback((mapInstance: any) => {
+  // Fix the TypeScript error by removing the parameter from the function
+  const handleMapReady = useCallback(() => {
     // Add any map initialization code here if needed
   }, []);
 
@@ -71,14 +71,14 @@ const Map = () => {
             <ParkMarker
               key={park.id}
               park={park}
-              isSelected={selectedParkId === park.id}
               onClick={() => setSelectedParkId(park.id)}
             />
           ))}
         </MapContainer>
         
         <ParkDetailsDialog
-          selectedParkId={selectedParkId}
+          park={parks.find(p => p.id === selectedParkId) || parks[0]}
+          isOpen={!!selectedParkId}
           onClose={() => setSelectedParkId(null)}
         />
       </div>
