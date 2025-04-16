@@ -36,10 +36,10 @@ const MapComponent = ({
       zoom={13} 
       zoomControl={false}
       className="h-full w-full rounded-md"
-      whenReady={(map) => {
+      whenReady={(mapInstance) => {
         // Add click handler to reset view
-        map.target.on('click', () => {
-          map.target.fitBounds(bounds);
+        mapInstance.target.on('click', () => {
+          mapInstance.target.fitBounds(bounds);
         });
       }}
     >

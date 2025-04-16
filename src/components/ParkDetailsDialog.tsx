@@ -18,7 +18,7 @@ interface ParkDetailsDialogProps {
 const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto z-[1000]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-nature-green-dark flex items-center gap-2">
             <MapPin className="h-5 w-5" /> {park.name}
