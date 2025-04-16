@@ -18,25 +18,16 @@ interface ParkDetailsDialogProps {
 const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto z-[1000]">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto z-[1000]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-nature-green-dark flex items-center gap-2">
             <MapPin className="h-5 w-5" /> {park.name}
           </DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="reviews" className="w-full mt-4">
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="reviews" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" /> Reviews
-            </TabsTrigger>
-            <TabsTrigger value="sentiments" className="flex items-center gap-2">
-              <PieChart className="h-4 w-4" /> Sentiment Analysis
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Reviews Tab */}
-          <TabsContent value="reviews" className="space-y-4">
+        <div className="w-full mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Reviews Section */}
+          <div>
             <Card>
               <CardHeader className="bg-nature-green-light/10 border-b border-nature-green-dark/10 pb-2">
                 <CardTitle className="text-lg text-nature-green-dark flex items-center gap-2">
@@ -79,10 +70,10 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                 </Table>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
           
-          {/* Sentiment Analysis Tab */}
-          <TabsContent value="sentiments">
+          {/* Sentiment Analysis Section */}
+          <div>
             <Card>
               <CardHeader className="bg-nature-green-light/10 border-b border-nature-green-dark/10 pb-2">
                 <CardTitle className="text-lg text-nature-green-dark flex items-center gap-2">
@@ -95,8 +86,8 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
