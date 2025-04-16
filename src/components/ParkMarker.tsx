@@ -23,9 +23,10 @@ const defaultIcon = new L.Icon({
 
 interface ParkMarkerProps {
   park: Park;
+  onSelect?: (parkId: string) => void;
 }
 
-const ParkMarker = ({ park }: ParkMarkerProps) => {
+const ParkMarker = ({ park, onSelect }: ParkMarkerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const avgSentiment = calculateAverageSentiment(park.reviews);
@@ -41,6 +42,16 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
     iconSize: [24, 24],
     iconAnchor: [12, 12],
   });
+
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onSelect) {
+      onSelect(park.id);
+    } else {
+      setShowDetails(true);
+    }
+  };
 
   // Star rating display component
   const StarRating = ({ rating }: { rating: number }) => {
@@ -68,6 +79,9 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
         eventHandlers={{
           click: () => {
             setIsOpen(true);
+            if (onSelect) {
+              onSelect(park.id);
+            }
           },
         }}
       >
@@ -98,11 +112,7 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
                 variant="outline" 
                 size="sm" 
                 className="w-full text-xs border-nature-green-dark text-nature-green-dark hover:bg-nature-green-light/20"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowDetails(true);
-                }}
+                onClick={handleViewDetails}
               >
                 View Details
               </Button>
@@ -111,12 +121,14 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
         </Popup>
       </Marker>
       
-      {/* Park Details Dialog */}
-      <ParkDetailsDialog 
-        park={park} 
-        isOpen={showDetails} 
-        onClose={() => setShowDetails(false)} 
-      />
+      {/* Show local dialog only if no onSelect handler is provided */}
+      {!onSelect && showDetails && (
+        <ParkDetailsDialog 
+          park={park} 
+          isOpen={showDetails} 
+          onClose={() => setShowDetails(false)} 
+        />
+      )}
     </>
   );
 };

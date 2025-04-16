@@ -42,7 +42,6 @@ const Map = () => {
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   
-  // Fix the TypeScript error by removing the parameter from the function
   const handleMapReady = useCallback(() => {
     // Add any map initialization code here if needed
   }, []);
@@ -71,15 +70,18 @@ const Map = () => {
             <ParkMarker
               key={park.id}
               park={park}
+              onSelect={() => setSelectedParkId(park.id)}
             />
           ))}
         </MapContainer>
         
-        <ParkDetailsDialog
-          park={parks.find(p => p.id === selectedParkId) || parks[0]}
-          isOpen={!!selectedParkId}
-          onClose={() => setSelectedParkId(null)}
-        />
+        {selectedParkId && (
+          <ParkDetailsDialog
+            park={parks.find(p => p.id === selectedParkId) || parks[0]}
+            isOpen={!!selectedParkId}
+            onClose={() => setSelectedParkId(null)}
+          />
+        )}
       </div>
     </div>
   );
