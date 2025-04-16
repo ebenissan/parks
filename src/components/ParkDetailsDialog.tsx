@@ -3,11 +3,11 @@ import { useState } from "react";
 import { Park, getSentimentColor, getSentimentDescription } from "@/data/parksData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, PieChart, MapPin, Info } from "lucide-react";
+import { MessageSquare, PieChart, MapPin } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format, parseISO } from "date-fns";
 import ParkReviewsPieChart from "./ParkReviewsPieChart";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ParkDetailsDialogProps {
   park: Park;
@@ -35,39 +35,41 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Comment</TableHead>
-                      <TableHead>Sentiment</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {park.reviews.map((review, index) => {
-                      const sentimentColor = getSentimentColor(review.sentiment);
-                      const sentimentText = getSentimentDescription(review.sentiment);
-                      
-                      return (
-                        <TableRow key={index}>
-                          <TableCell className="whitespace-nowrap">
-                            {format(parseISO(review.date), 'MMM d, yyyy')}
-                          </TableCell>
-                          <TableCell>{review.text}</TableCell>
-                          <TableCell>
-                            <span className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full" 
-                                style={{ backgroundColor: sentimentColor }}
-                              ></div>
-                              <span style={{ color: sentimentColor }}>{sentimentText}</span>
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Comment</TableHead>
+                        <TableHead>Sentiment</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {park.reviews.map((review, index) => {
+                        const sentimentColor = getSentimentColor(review.sentiment);
+                        const sentimentText = getSentimentDescription(review.sentiment);
+                        
+                        return (
+                          <TableRow key={index}>
+                            <TableCell className="whitespace-nowrap">
+                              {format(parseISO(review.date), 'MMM d, yyyy')}
+                            </TableCell>
+                            <TableCell>{review.text}</TableCell>
+                            <TableCell>
+                              <span className="flex items-center gap-2">
+                                <div 
+                                  className="w-3 h-3 rounded-full" 
+                                  style={{ backgroundColor: sentimentColor }}
+                                ></div>
+                                <span style={{ color: sentimentColor }}>{sentimentText}</span>
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
               </CardContent>
             </Card>
           </div>
