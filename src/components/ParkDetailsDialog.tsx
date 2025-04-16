@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Park, getSentimentColor, getSentimentDescription } from "@/data/parksData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, PieChart, MapPin, Send } from "lucide-react";
+import { MessageSquare, PieChart, MapPin, Send, Star } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format, parseISO } from "date-fns";
 import ParkReviewsPieChart from "./ParkReviewsPieChart";
@@ -22,19 +22,23 @@ interface ParkDetailsDialogProps {
 
 interface ReviewFormValues {
   reviewText: string;
+  stars: number;
 }
 
 const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) => {
+  const [selectedRating, setSelectedRating] = useState(5);
+  
   // Set up form with react-hook-form
   const form = useForm<ReviewFormValues>({
     defaultValues: {
       reviewText: "",
+      stars: 5
     },
   });
 
   const handleSubmitReview = (values: ReviewFormValues) => {
     // This is a mock submission - in a real app, this would connect to a backend
-    console.log("Review submitted:", values.reviewText);
+    console.log("Review submitted:", values.reviewText, "Stars:", selectedRating);
     
     // Show success toast
     toast({
@@ -44,6 +48,31 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
     
     // Reset the form
     form.reset();
+    setSelectedRating(5);
+  };
+
+  // Render star rating component
+  const StarRating = ({ rating, onRatingChange }: { rating: number, onRatingChange?: (rating: number) => void }) => {
+    return (
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onRatingChange && onRatingChange(star)}
+            className={`h-6 w-6 ${onRatingChange ? 'cursor-pointer' : ''}`}
+          >
+            <Star 
+              className={star <= rating 
+                ? "fill-yellow-400 text-yellow-400" 
+                : "text-gray-300"
+              } 
+              size={20} 
+            />
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -73,6 +102,7 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Date</TableHead>
+                        <TableHead>Rating</TableHead>
                         <TableHead>Comment</TableHead>
                         <TableHead>Sentiment</TableHead>
                       </TableRow>
@@ -86,6 +116,9 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                           <TableRow key={index}>
                             <TableCell className="whitespace-nowrap">
                               {format(parseISO(review.date), 'MMM d, yyyy')}
+                            </TableCell>
+                            <TableCell>
+                              <StarRating rating={review.stars} />
                             </TableCell>
                             <TableCell>{review.text}</TableCell>
                             <TableCell>
@@ -135,6 +168,13 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
             <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleSubmitReview)} className="space-y-4">
+                  <div className="flex flex-col space-y-1.5">
+                    <FormLabel>Your Rating</FormLabel>
+                    <StarRating 
+                      rating={selectedRating} 
+                      onRatingChange={(rating) => setSelectedRating(rating)}
+                    />
+                  </div>
                   <FormField
                     control={form.control}
                     name="reviewText"

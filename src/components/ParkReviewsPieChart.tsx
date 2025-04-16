@@ -12,34 +12,22 @@ const ParkReviewsPieChart = ({ reviews }: ParkReviewsPieChartProps) => {
   const chartData = useMemo(() => {
     // Count reviews by sentiment category
     const sentimentCounts = {
-      "Very Positive": 0,
-      "Positive": 0, 
-      "Neutral": 0,
-      "Negative": 0,
-      "Very Negative": 0
+      "Positive": 0,
+      "Negative": 0
     };
     
     reviews.forEach(review => {
-      if (review.sentiment >= 0.6) {
-        sentimentCounts["Very Positive"]++;
-      } else if (review.sentiment >= 0.2) {
+      if (review.sentiment >= 0) {
         sentimentCounts["Positive"]++;
-      } else if (review.sentiment >= -0.2) {
-        sentimentCounts["Neutral"]++;
-      } else if (review.sentiment >= -0.6) {
-        sentimentCounts["Negative"]++;
       } else {
-        sentimentCounts["Very Negative"]++;
+        sentimentCounts["Negative"]++;
       }
     });
     
     // Convert to chart data format
     return [
-      { name: "Very Positive", value: sentimentCounts["Very Positive"], color: "#8CB369" },
-      { name: "Positive", value: sentimentCounts["Positive"], color: "#F4D35E" },
-      { name: "Neutral", value: sentimentCounts["Neutral"], color: "#A4937C" },
-      { name: "Negative", value: sentimentCounts["Negative"], color: "#F78C6B" },
-      { name: "Very Negative", value: sentimentCounts["Very Negative"], color: "#E56B6F" }
+      { name: "Positive", value: sentimentCounts["Positive"], color: "#8CB369" },
+      { name: "Negative", value: sentimentCounts["Negative"], color: "#E56B6F" }
     ].filter(item => item.value > 0); // Only include categories with values
   }, [reviews]);
 

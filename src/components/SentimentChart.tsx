@@ -40,12 +40,7 @@ const SentimentChart = ({ reviews, height = 80 }: SentimentChartProps) => {
       const x = markerSpacing * (index + 1);
       
       // Determine color based on sentiment
-      let color;
-      if (review.sentiment >= 0.6) color = "#8CB369";
-      else if (review.sentiment >= 0.2) color = "#F4D35E";
-      else if (review.sentiment >= -0.2) color = "#A4937C";
-      else if (review.sentiment >= -0.6) color = "#F78C6B";
-      else color = "#E56B6F";
+      const color = review.sentiment >= 0 ? "#8CB369" : "#E56B6F";
       
       // Draw circle
       ctx.fillStyle = color;

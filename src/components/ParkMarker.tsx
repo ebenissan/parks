@@ -8,6 +8,7 @@ import SentimentChart from "./SentimentChart";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import ParkDetailsDialog from "./ParkDetailsDialog";
+import { Star } from "lucide-react";
 
 // Fix for leaflet icons in production environments
 const defaultIcon = new L.Icon({
@@ -31,12 +32,33 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
   const sentimentColor = getSentimentColor(avgSentiment);
   const sentimentText = getSentimentDescription(avgSentiment);
   
+  // Calculate average star rating
+  const avgStarRating = park.reviews.reduce((acc, review) => acc + review.stars, 0) / park.reviews.length;
+  
   const customIcon = L.divIcon({
     className: 'custom-marker',
     html: `<div style="background-color: ${sentimentColor}; width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>`,
     iconSize: [24, 24],
     iconAnchor: [12, 12],
   });
+
+  // Star rating display component
+  const StarRating = ({ rating }: { rating: number }) => {
+    return (
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star 
+            key={star}
+            className={star <= Math.round(rating) 
+              ? "fill-yellow-400 text-yellow-400" 
+              : "text-gray-300"
+            } 
+            size={14} 
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -56,6 +78,13 @@ const ParkMarker = ({ park }: ParkMarkerProps) => {
             </CardHeader>
             <CardContent className="pb-2">
               <p className="text-sm mb-2">{park.description}</p>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-muted-foreground">Average Rating:</span>
+                <span className="text-xs font-medium flex items-center">
+                  <StarRating rating={avgStarRating} />
+                  <span className="ml-1">({avgStarRating.toFixed(1)})</span>
+                </span>
+              </div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-muted-foreground">Community Sentiment:</span>
                 <span className="text-xs font-medium" style={{ color: sentimentColor }}>{sentimentText}</span>
