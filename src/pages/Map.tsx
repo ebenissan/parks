@@ -7,6 +7,21 @@ import ParkDetailsDialog from "@/components/ParkDetailsDialog";
 import "leaflet/dist/leaflet.css";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Fix Leaflet icon issue
+import L from "leaflet";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Fix default icon issue which is a common problem with Leaflet in React
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
 // Center of Mill Creek area
 const MILL_CREEK_CENTER: [number, number] = [36.0965, -86.7162];
 const ZOOM_LEVEL = 13;
@@ -44,11 +59,12 @@ const Map = () => {
   
   const handleMapReady = useCallback(() => {
     // Add any map initialization code here if needed
+    console.log("Map is ready");
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="flex-1 relative">
+      <div className="flex-1 relative" style={{ height: "100vh" }}>
         <MapContainer 
           center={MILL_CREEK_CENTER} 
           zoom={ZOOM_LEVEL} 
