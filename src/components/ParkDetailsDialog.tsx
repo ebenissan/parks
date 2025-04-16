@@ -1,13 +1,18 @@
 
 import { useState } from "react";
 import { Park, getSentimentColor, getSentimentDescription } from "@/data/parksData";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, PieChart, MapPin } from "lucide-react";
+import { MessageSquare, PieChart, MapPin, Send } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format, parseISO } from "date-fns";
 import ParkReviewsPieChart from "./ParkReviewsPieChart";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { toast } from "@/hooks/use-toast";
 
 interface ParkDetailsDialogProps {
   park: Park;
@@ -15,7 +20,32 @@ interface ParkDetailsDialogProps {
   onClose: () => void;
 }
 
+interface ReviewFormValues {
+  reviewText: string;
+}
+
 const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) => {
+  // Set up form with react-hook-form
+  const form = useForm<ReviewFormValues>({
+    defaultValues: {
+      reviewText: "",
+    },
+  });
+
+  const handleSubmitReview = (values: ReviewFormValues) => {
+    // This is a mock submission - in a real app, this would connect to a backend
+    console.log("Review submitted:", values.reviewText);
+    
+    // Show success toast
+    toast({
+      title: "Review submitted",
+      description: "Thank you for sharing your experience at this park!"
+    });
+    
+    // Reset the form
+    form.reset();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto z-[1000]">
@@ -23,6 +53,9 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
           <DialogTitle className="text-2xl font-bold text-nature-green-dark flex items-center gap-2">
             <MapPin className="h-5 w-5" /> {park.name}
           </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            View and share community experiences at this location
+          </DialogDescription>
         </DialogHeader>
         
         <div className="w-full mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,6 +122,46 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Review Input Form */}
+        <div className="mt-6">
+          <Card>
+            <CardHeader className="bg-nature-green-light/10 border-b border-nature-green-dark/10 pb-2">
+              <CardTitle className="text-lg text-nature-green-dark flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" /> Share Your Experience
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSubmitReview)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="reviewText"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Review</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Share your thoughts about this park..." 
+                            className="min-h-[100px] resize-none" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button 
+                    type="submit" 
+                    className="w-full md:w-auto bg-nature-green-dark hover:bg-nature-green-dark/90"
+                  >
+                    Submit Review <Send className="ml-1 h-4 w-4" />
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
         </div>
       </DialogContent>
     </Dialog>
