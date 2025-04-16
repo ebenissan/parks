@@ -1,6 +1,7 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { MapPin, BookOpen, Home } from "lucide-react";
+import { MapPin, BookOpen, Home, BarChart } from "lucide-react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -33,6 +34,13 @@ const Navbar = () => {
                 isActiveRoute("/map") && "nav-link-active")}>
               <MapPin className="h-4 w-4 mr-1.5" />
               Map
+            </Link>
+            <Link 
+              to="/compare" 
+              className={cn("nav-link flex items-center", 
+                isActiveRoute("/compare") && "nav-link-active")}>
+              <BarChart className="h-4 w-4 mr-1.5" />
+              Compare
             </Link>
             <Link 
               to="/learn" 

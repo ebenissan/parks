@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Map from "./pages/Map";
 import Learn from "./pages/Learn";
+import ComparePage from "./pages/ComparePage";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/map" element={<Map />} />
             <Route path="/learn" element={<Learn />} />
+            <Route path="/compare" element={<ComparePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
