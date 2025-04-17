@@ -69,12 +69,17 @@ const ScrollytellingSection = ({
         delay: 0.3
       }}>
           <div className="bg-white rounded-lg p-4 shadow-md w-full max-w-[300px]">
-            <img src={`/images/sentiment-${index + 1}.svg`} alt={imageAlt} className="w-full h-auto" onError={e => {
-            // Fallback if image doesn't exist
-            const target = e.target as HTMLImageElement;
-            target.onerror = null;
-            target.src = "/placeholder.svg";
-          }} />
+          <img
+            src={`${import.meta.env.BASE_URL}/parks/images/sentiment-${index + 1}.svg`}
+            alt={imageAlt}
+            className="w-full h-auto"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = `${import.meta.env.BASE_URL}/parks/placeholder.svg`;
+            }}
+          />
+
           </div>
         </motion.div>
       </div>
