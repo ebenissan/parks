@@ -9,7 +9,7 @@ import Index from "./pages/Index";
 import Map from "./pages/Map";
 import Learn from "./pages/Learn";
 import ComparePage from "./pages/ComparePage";
-import Who from "./pages/Who";
+import MillCreekIntroPage from "./pages/Who";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 
@@ -28,7 +28,7 @@ const App = () => (
             <Route path="/map" element={<Map />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/compare" element={<ComparePage />} />
-            <Route path="/who" element={<Who />} />
+            <Route path="/who" element={<MillCreekIntroPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
