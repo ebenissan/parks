@@ -23,7 +23,7 @@ const Navbar = () => {
           <div className="flex space-x-2">
             <Link 
               to="/" 
-              className={cn("nav-link flex items-center", 
+              className={cn("nav-link flex items-center",
                 isActiveRoute("/") && "nav-link-active")}>
               <Home className="h-4 w-4 mr-1.5" />
               Home
@@ -48,6 +48,13 @@ const Navbar = () => {
                 isActiveRoute("/learn") && "nav-link-active")}>
               <BookOpen className="h-4 w-4 mr-1.5" />
               Learn
+            </Link>
+            <Link 
+              to="/who" 
+              className={cn("nav-link flex items-center", 
+                isActiveRoute("/who") && "nav-link-active")}>
+              {/* <BookOpen className="h-4 w-4 mr-1.5" /> */}
+              Who Lives in Mill Creek?
             </Link>
           </div>
         </div>
