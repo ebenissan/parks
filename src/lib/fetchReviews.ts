@@ -18,7 +18,7 @@ export interface Park {
 }
 
 export async function fetchReviewsByPark(): Promise<Park[]> {
-  const reviewsCol = collection(db, "reviews");
+  const reviewsCol = collection(db, "final_reviews");
   const snapshot = await getDocs(reviewsCol);
 
   const parkMap: Record<string, Review[]> = {};

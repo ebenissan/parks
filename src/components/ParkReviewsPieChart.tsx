@@ -13,7 +13,7 @@ const ParkReviewsPieChart = ({ parkName }: ParkReviewsPieChartProps) => {
   useEffect(() => {
     if (!parkName) return;
 
-    const q = query(collection(db, "reviews"), where("park", "==", parkName));
+    const q = query(collection(db, "final_reviews"), where("park", "==", parkName));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetched = snapshot.docs.map((doc) => doc.data());
       setReviews(fetched);

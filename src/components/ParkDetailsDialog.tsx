@@ -57,21 +57,23 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
   useEffect(() => {
     const fetchReviews = async () => {
       if (!isOpen) return;
-      const reviewsRef = collection(db, "reviews");
+      const reviewsRef = collection(db, "final_reviews");
       const q = query(reviewsRef, where("park", "==", park.name));
       const snapshot = await getDocs(q);
 
       const reviewList = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
-          text: data.comment,
-          translated: data.translatedComment ?? null,
+          originalComment: data.originalComment || data.comment, // fallback
+          translatedComment: data.translatedComment || null,
           showTranslated: false,
           stars: data.rating,
-          date: data.timestamp?.toDate().toISOString() ?? new Date().toISOString(),
+          date: data.timestamp?.toDate?.().toISOString?.() ?? new Date().toISOString(),
           sentiment: data.sentiment ?? 0,
+          language: data.language ?? "unknown",
         };
-      });
+      });      
+      
 
       setReviews(reviewList);
     };
@@ -104,16 +106,18 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
         translated = data?.responseData?.translatedText || null;
       }
 
-      await addDoc(collection(db, "reviews"), {
-        comment: values.reviewText,
+      await addDoc(collection(db, "final_reviews"), {
+        originalComment: values.reviewText,
+        translatedComment: translated,
         rating: selectedRating,
+        sentiment: sentimentScore,
         park: park.name,
         user: "Anonymous",
         timestamp: serverTimestamp(),
-        sentiment: sentimentScore,
-        translatedComment: translated,
-        language: sourceLang ?? "unknown"
+        language: sourceLang ?? "unknown",
+        needsManualReview: sourceLang !== "en",
       });
+      
 
       toast({
         title: "Review submitted",
@@ -194,9 +198,9 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                               <StarRating rating={review.stars} />
                             </TableCell>
                             <TableCell>
-                              {review.translated ? (
+                              {review.language !== "en" && review.translatedComment ? (
                                 <>
-                                  <p>{review.showTranslated ? review.translated : review.text}</p>
+                                  <p>{review.showTranslated ? review.translatedComment : review.originalComment}</p>
                                   <button
                                     onClick={() => toggleTranslation(index)}
                                     className="text-blue-600 hover:underline text-sm mt-1"
@@ -205,9 +209,10 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                                   </button>
                                 </>
                               ) : (
-                                review.text
+                                <p>{review.originalComment}</p>
                               )}
                             </TableCell>
+
                             <TableCell>
                               <span className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sentimentColor }}></div>
