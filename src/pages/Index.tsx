@@ -98,7 +98,7 @@ const Index = () => {
             data interpretation while connecting with their local community.
           </p>
           <Button asChild variant="secondary" className="bg-white text-nature-green-dark hover:bg-white/90">
-            <Link to="/learn">
+            <Link to="https://www.t-recsvu.org/">
               Learn More About The Project
             </Link>
           </Button>

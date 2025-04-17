@@ -1,17 +1,48 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format, parseISO } from "date-fns";
 import { useForm } from "react-hook-form";
-import { collection, getDocs, query, where, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, addDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, PieChart, MapPin, Send, Star } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  MessageSquare,
+  PieChart,
+  MapPin,
+  Send,
+  Star,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import ParkReviewsPieChart from "./ParkReviewsPieChart";
 import { getSentimentColor, getSentimentDescription } from "@/data/parksData";
@@ -46,6 +77,7 @@ interface ReviewFormValues {
 const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) => {
   const [selectedRating, setSelectedRating] = useState(5);
   const [reviews, setReviews] = useState<any[]>([]);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const form = useForm<ReviewFormValues>({
     defaultValues: {
@@ -55,16 +87,17 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
   });
 
   useEffect(() => {
-    const fetchReviews = async () => {
-      if (!isOpen) return;
-      const reviewsRef = collection(db, "final_reviews");
-      const q = query(reviewsRef, where("park", "==", park.name));
-      const snapshot = await getDocs(q);
+    if (!isOpen) return;
 
-      const reviewList = snapshot.docs.map((doc) => {
+    const reviewsRef = collection(db, "final_reviews");
+    const q = query(reviewsRef, where("park", "==", park.name));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const reviewList = snapshot.docs
+      .map((doc) => {
         const data = doc.data();
         return {
-          originalComment: data.originalComment || data.comment, // fallback
+          originalComment: data.originalComment || data.comment,
           translatedComment: data.translatedComment || null,
           showTranslated: false,
           stars: data.rating,
@@ -72,13 +105,18 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
           sentiment: data.sentiment ?? 0,
           language: data.language ?? "unknown",
         };
-      });      
-      
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // newest first
+    
 
       setReviews(reviewList);
-    };
 
-    fetchReviews();
+      setTimeout(() => {
+        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    });
+
+    return () => unsubscribe();
   }, [isOpen, park.name]);
 
   const toggleTranslation = (index: number) => {
@@ -117,7 +155,6 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
         language: sourceLang ?? "unknown",
         needsManualReview: sourceLang !== "en",
       });
-      
 
       toast({
         title: "Review submitted",
@@ -144,7 +181,7 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
             key={star}
             type="button"
             onClick={() => onRatingChange && onRatingChange(star)}
-            className={`h-6 w-6 ${onRatingChange ? 'cursor-pointer' : ''}`}
+            className={`h-6 w-6 ${onRatingChange ? "cursor-pointer" : ""}`}
           >
             <Star className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} size={20} />
           </button>
@@ -174,7 +211,7 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <ScrollArea className="h-[300px]">
+                <ScrollArea className="h-[300px]" ref={scrollRef}>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -212,7 +249,6 @@ const ParkDetailsDialog = ({ park, isOpen, onClose }: ParkDetailsDialogProps) =>
                                 <p>{review.originalComment}</p>
                               )}
                             </TableCell>
-
                             <TableCell>
                               <span className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sentimentColor }}></div>
