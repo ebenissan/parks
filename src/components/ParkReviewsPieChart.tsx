@@ -1,34 +1,45 @@
-
-import { useMemo } from "react";
-import { Park } from "@/data/parksData";
+import { useEffect, useMemo, useState } from "react";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "@/firebase";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 interface ParkReviewsPieChartProps {
-  reviews: Park["reviews"];
+  parkName: string;
 }
 
-const ParkReviewsPieChart = ({ reviews }: ParkReviewsPieChartProps) => {
-  // Process review data for the chart
-  const chartData = useMemo(() => {
-    // Count reviews by sentiment category
-    const sentimentCounts = {
-      "Positive": 0,
-      "Negative": 0
-    };
-    
-    reviews.forEach(review => {
-      if (review.sentiment >= 0) {
-        sentimentCounts["Positive"]++;
-      } else {
-        sentimentCounts["Negative"]++;
-      }
+const ParkReviewsPieChart = ({ parkName }: ParkReviewsPieChartProps) => {
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!parkName) return;
+
+    const q = query(collection(db, "reviews"), where("park", "==", parkName));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map((doc) => doc.data());
+      setReviews(fetched);
     });
-    
-    // Convert to chart data format
+
+    return () => unsubscribe();
+  }, [parkName]);
+
+  const chartData = useMemo(() => {
+    const sentimentCounts = {
+      Positive: 0,
+      Negative: 0,
+    };
+
+    reviews.forEach((review) => {
+      const score = review.sentiment;
+      if (typeof score !== "number") return;
+
+      if (score >= 0) sentimentCounts.Positive++;
+      else sentimentCounts.Negative++;
+    });
+
     return [
-      { name: "Positive", value: sentimentCounts["Positive"], color: "#8CB369" },
-      { name: "Negative", value: sentimentCounts["Negative"], color: "#E56B6F" }
-    ].filter(item => item.value > 0); // Only include categories with values
+      { name: "Positive", value: sentimentCounts.Positive, color: "#8CB369" },
+      { name: "Negative", value: sentimentCounts.Negative, color: "#E56B6F" },
+    ].filter((item) => item.value > 0);
   }, [reviews]);
 
   if (chartData.length === 0) {
@@ -42,7 +53,7 @@ const ParkReviewsPieChart = ({ reviews }: ParkReviewsPieChartProps) => {
           data={chartData}
           cx="50%"
           cy="50%"
-          labelLine={true}
+          labelLine
           label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
           outerRadius={80}
           fill="#8884d8"
@@ -52,9 +63,7 @@ const ParkReviewsPieChart = ({ reviews }: ParkReviewsPieChartProps) => {
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip 
-          formatter={(value) => [`${value} reviews`, 'Count']}
-        />
+        <Tooltip formatter={(value) => [`${value} reviews`, 'Count']} />
         <Legend />
       </PieChart>
     </ResponsiveContainer>
