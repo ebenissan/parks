@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { MapPin, BookOpen, Home, BarChart } from "lucide-react";
+import { MapPin, BookOpen, Home, BarChart, Users } from "lucide-react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -36,6 +36,13 @@ const Navbar = () => {
               Map
             </Link>
             <Link 
+              to="/who" 
+              className={cn("nav-link flex items-center", 
+                isActiveRoute("/who") && "nav-link-active")}>
+              <Users className="h-4 w-4 mr-1.5" />
+              Who Lives in Mill Creek?
+            </Link>
+            <Link 
               to="/compare" 
               className={cn("nav-link flex items-center", 
                 isActiveRoute("/compare") && "nav-link-active")}>
@@ -48,13 +55,6 @@ const Navbar = () => {
                 isActiveRoute("/learn") && "nav-link-active")}>
               <BookOpen className="h-4 w-4 mr-1.5" />
               Learn
-            </Link>
-            <Link 
-              to="/who" 
-              className={cn("nav-link flex items-center", 
-                isActiveRoute("/who") && "nav-link-active")}>
-              {/* <BookOpen className="h-4 w-4 mr-1.5" /> */}
-              Who Lives in Mill Creek?
             </Link>
           </div>
         </div>
