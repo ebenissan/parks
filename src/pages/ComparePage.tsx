@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format, parseISO } from "date-fns";
 import ParkReviewsPieChart from "@/components/ParkReviewsPieChart";
+import SentimentChart from "@/components/SentimentChart";
 
 const ComparePage = () => {
   const [selectedParks, setSelectedParks] = useState<string[]>([]);
@@ -189,7 +190,6 @@ const ComparePage = () => {
                 </CardHeader>
                 {expandedPark === park.id && (
                   <CardContent className="pt-6">
-                    {/* Two-Column Layout: Sentiment Distribution and Reviews */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Sentiment Distribution */}
                       <div className="h-[300px]">
@@ -199,40 +199,46 @@ const ComparePage = () => {
                         <ParkReviewsPieChart reviews={park.reviews} />
                       </div>
                       
-                      {/* Reviews List */}
-                      <div>
+                      {/* Sentiment Over Reviews */}
+                      <div className="h-[300px]">
                         <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
-                          <MessageSquare className="h-4 w-4" /> Review History
+                          <BarChart className="h-4 w-4" /> Sentiment Overview
                         </h3>
-                        <div className="max-h-[300px] overflow-auto">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Rating</TableHead>
-                                <TableHead>Comment</TableHead>
-                                <TableHead>Sentiment</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {park.reviews.map((review, index) => (
-                                <TableRow key={index}>
-                                  <TableCell className="whitespace-nowrap">
-                                    {format(parseISO(review.date), 'MMM d, yyyy')}
-                                  </TableCell>
-                                  <TableCell>{review.stars} ★</TableCell>
-                                  <TableCell>{review.text}</TableCell>
-                                  <TableCell>
-                                    <span className={review.sentiment >= 0 ? "text-green-600" : "text-red-600"}>
-                                      {review.sentiment >= 0 ? "Positive" : "Negative"}
-                                    </span>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
+                        <SentimentChart reviews={park.reviews} height={200} />
                       </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" /> Review History
+                      </h3>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Rating</TableHead>
+                            <TableHead>Comment</TableHead>
+                            <TableHead>Sentiment</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {park.reviews.map((review, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="whitespace-nowrap">
+                                {format(parseISO(review.date), 'MMM d, yyyy')}
+                              </TableCell>
+                              <TableCell>{review.stars} ★</TableCell>
+                              <TableCell>{review.text}</TableCell>
+                              <TableCell>
+                                <span className={review.sentiment >= 0 ? "text-green-600" : "text-red-600"}>
+                                  {review.sentiment >= 0 ? "Positive" : "Negative"}
+                                </span>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   </CardContent>
                 )}

@@ -10,12 +10,22 @@ import "leaflet/dist/leaflet.css";
 import ParkDetailsDialog from "./ParkDetailsDialog";
 import { Star } from "lucide-react";
 
+// Fix for leaflet icons in production environments
+const defaultIcon = new L.Icon({
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 interface ParkMarkerProps {
   park: Park;
-  onSelect?: (parkId: string) => void;
 }
 
-const ParkMarker = ({ park, onSelect }: ParkMarkerProps) => {
+const ParkMarker = ({ park }: ParkMarkerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const avgSentiment = calculateAverageSentiment(park.reviews);
@@ -31,16 +41,6 @@ const ParkMarker = ({ park, onSelect }: ParkMarkerProps) => {
     iconSize: [24, 24],
     iconAnchor: [12, 12],
   });
-
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onSelect) {
-      onSelect(park.id);
-    } else {
-      setShowDetails(true);
-    }
-  };
 
   // Star rating display component
   const StarRating = ({ rating }: { rating: number }) => {
@@ -68,9 +68,6 @@ const ParkMarker = ({ park, onSelect }: ParkMarkerProps) => {
         eventHandlers={{
           click: () => {
             setIsOpen(true);
-            if (onSelect) {
-              onSelect(park.id);
-            }
           },
         }}
       >
@@ -101,7 +98,11 @@ const ParkMarker = ({ park, onSelect }: ParkMarkerProps) => {
                 variant="outline" 
                 size="sm" 
                 className="w-full text-xs border-nature-green-dark text-nature-green-dark hover:bg-nature-green-light/20"
-                onClick={handleViewDetails}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDetails(true);
+                }}
               >
                 View Details
               </Button>
@@ -110,14 +111,12 @@ const ParkMarker = ({ park, onSelect }: ParkMarkerProps) => {
         </Popup>
       </Marker>
       
-      {/* Show local dialog only if no onSelect handler is provided */}
-      {!onSelect && showDetails && (
-        <ParkDetailsDialog 
-          park={park} 
-          isOpen={showDetails} 
-          onClose={() => setShowDetails(false)} 
-        />
-      )}
+      {/* Park Details Dialog */}
+      <ParkDetailsDialog 
+        park={park} 
+        isOpen={showDetails} 
+        onClose={() => setShowDetails(false)} 
+      />
     </>
   );
 };
